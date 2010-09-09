@@ -14,6 +14,12 @@ from Version        import VERSION
 class Browse (Exec) :
     """ Feed a file to running web browser -- modelled after the
         "webbrowse" program in Perl
+        You probably want to prevent firefox from changing to the
+        current workspace on its own by setting
+        browser.tabs.loadDivertedInBackground = true 
+        either in the user.js or in about:config
+        But this is only a workaround, see
+        http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=486570
     """
     def __init__ \
         ( self
