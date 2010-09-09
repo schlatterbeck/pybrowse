@@ -74,7 +74,9 @@ class Browse (Exec) :
                 )
         else :
             os.system \
-                ("(sleep %s ; /bin/rm -f %s)&" % (self.keep, self.filename))
+                ( "(sleep %s ; /bin/rm -f %s)&"
+                % (self.keep * 60, self.filename)
+                )
     # end def schedule_rm
 
     host = r'[-\w.]*\w'
