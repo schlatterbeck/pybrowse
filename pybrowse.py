@@ -35,7 +35,6 @@ class Browse (Exec) :
         self.filename  = None
         if url :
             # new = 2 is "open new tab"
-            print "Trying:", self.url, self.do_raise
             self.wb = self.browser.open \
                 (self.url, new = 2, autoraise = self.do_raise)
         else :
@@ -82,65 +81,72 @@ class Browse (Exec) :
     mesg = r'(^|\n)(Message-ID|References):[^\n]*'
     xref = r'(^|\n)(Xref):[^\n]*'
 
-    RR = \
-        [(re.compile (i, flags), j, loop) for i, j, flags, loop in
+    RR = [(re.compile (i, flags), j, loop) for i, j, flags, loop in
            ( ( r'(&lt;URL:\s*)([^&\s]+)'
-             , '$1<a href="$2">$2</a>'
+             , r'\1<a href="\2">\2</a>'
              , re.I, 0
              )
-           , ( r'(^|[^-\w.">/@])(www\.%(fqdn)s)(%(urlp)s)?' % locals ()
-             , '$1<a href="http://$2$3">$2$3</a>'
+           , ( r'(^|[^-\w.">/@])(www\.%(fqdn)s)((%(urlp)s)?)' % locals ()
+             , r'\1<a href="http://\2\3">\2\3</a>'
              , re.I, 0
              )
-           , ( r'(^|[^-\w.">/@])(ftp\\.%(fqdn)s)(%(urlp)s)?' % locals ()
-             , '$1<a href="ftp://$2$3">$2$3</a>'
+           , ( r'(^|[^-\w.">/@])(ftp\\.%(fqdn)s)((%(urlp)s)?)' % locals ()
+             , r'\1<a href="ftp://\2\3">\2\3</a>'
              , re.I, 0
              )
            , ( r'(^|[^-\w.">/@])(%(fqdn)s):(/?)(%(path)s)' % locals ()
-             , '$1<a href="ftp://$2/$4">$2:$3$4</a>'
+             , r'\1<a href="ftp://\2/\4">\2:\3\4</a>'
              , 0, 0
              )
            , ( r'(^|[^-\w.">/])(\w+:%(urlp)s)' % locals ()
-             , '$1<a href="$2">$2</a>'
+             , r'\1<a href="\2">\2</a>'
              , 0, 0
              )
            , ( r'(^|\s)(/%(path)s)(\s|$)' % locals ()
-             , '$1<a href="file:$2">$2</a>$4'
+             , r'\1<a href="file:\2">\2</a>\4'
              , 0, 0
              )
            , ( r'($from([ \t]|\&lt;))(%(addr)s)' % locals ()
-             , '$1<a href="mailto:$5">$5</a>'
+             , r'\1<a href="mailto:\5">\5</a>'
              , re.I, 1
              )
            , ( r'(%(ngrp)s[ \t,])([-+\w]+(\.[-+\w]+)+)' % locals ()
-             , '$1<a href="news:$4">$4</a>'
+             , r'\1<a href="news:\4">\4</a>'
              , re.I, 1
              )
            , ( r'(%(mesg)s\&lt;)([^\&\s]+@%(host)s)(\&gt;)' % locals ()
-             , '$1<a href="news:$4">$4</a>$5'
+             , r'\1<a href="news:\4">\4</a>\5'
              , re.I, 1
              )
            , ( r'(^|[\\s,])(%(addr)s)' % locals ()
-             , '$1<a href="mailto:$2">$2</a>'
+             , r'\1<a href="mailto:\2">\2</a>'
              , 0, 0
              )
            , ( r'(\&lt;)([-+\w.]{0,13}\w@%(host)s)(\&gt;)' % locals ()
-             , '$1<a href="mailto:$2">$2</a>$3'
+             , r'\1<a href="mailto:\2">\2</a>\3'
              , re.I, 0
              )
            , ( r'(\&lt;)([^\&\s@<]+@%(host)s)(\&gt;)' % locals ()
-             , '$1<a href="news:$2">$2</a>$3'
+             , r'\1<a href="news:\2">\2</a>\3'
              , re.I, 0
              )
            )
-        ]
+         ]
 
     def markup (self, input, output) :
+        output.write ('<html>\n')
         for line in input :
-            line = cgi.escape (line)
-            for regex, replacement in self.RR :
-                line = regex.sub (replacement, line)
+            line = escape (line)
+            for n, (regex, replacement, multiple) in enumerate (self.RR) :
+                #print n
+                if multiple :
+                    k = 0
+                    while k :
+                        line, k = regex.subn (replacement, line)
+                else :
+                    line = regex.sub (replacement, line)
             output.write (line)
+        output.write ('</html>\n')
     # end def markup
 
 # end class Browse
@@ -204,3 +210,6 @@ def main () :
         parser.error ("No arguments please")
     b = Browse (** opt.__dict__)
 # end def main
+
+if __name__ == '__main__' :
+    main ()
