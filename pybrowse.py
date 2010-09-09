@@ -153,6 +153,7 @@ class Browse (Exec) :
                         line, k = regex.subn (replacement, line)
                 else :
                     line = regex.sub (replacement, line)
+            line = line.replace ('\n', '<br>\n')
             output.write (line)
         output.write ('</html>\n')
     # end def markup
