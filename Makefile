@@ -2,6 +2,10 @@ PKG=pybrowse
 PY=pybrowse.py
 SRC=Makefile $(PY)
 
+ifeq (,${RELEASETOOLS})
+    RELEASETOOLS=../releasetools
+endif
+
 VERSIONPY=Version.py
 VERSION=$(VERSIONPY)
 LASTRELEASE:=$(shell ../svntools/lastrelease -n)
@@ -15,4 +19,4 @@ clean:
 	    Version.py Version.pyc ${CHANGES} ${NOTES}
 	rm -rf dist build
 
-include ../make/Makefile-sf
+include ${RELEASETOOLS}/Makefile-sf
