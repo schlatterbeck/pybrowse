@@ -1,15 +1,15 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import sys
 import re
 import webbrowser
 
-from cgi            import escape
-from optparse       import OptionParser
-from tempfile       import mkstemp
-from rsclib.execute import Exec
-from Version        import VERSION
+from cgi              import escape
+from optparse         import OptionParser
+from tempfile         import mkstemp
+from rsclib.execute   import Exec
+from pybrowse.Version import VERSION
 
 class Browse (Exec) :
     """ Feed a file to running web browser -- modelled after the
@@ -69,8 +69,13 @@ class Browse (Exec) :
             return
         if self.use_at :
             self.exec_pipe \
-                ( ('at', 'now', '+', str (self.keep), 'minutes')
-                , "/bin/rm -f %s\n" % self.filename
+                ( ( b'at'
+                  , b'now'
+                  , b'+'
+                  , str (self.keep).encode ('ascii')
+                  , b'minutes'
+                  )
+                , b"/bin/rm -f %s\n" % self.filename.encode ('utf-8')
                 )
         else :
             os.system \
