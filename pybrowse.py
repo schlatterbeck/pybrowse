@@ -51,10 +51,10 @@ class Browse (Exec) :
             self.filename = os.path.abspath (self.filename)
             f = os.fdopen (fd, 'w')
             if self.do_markup :
-                self.markup (sys.stdin, f)
+                self.markup (sys.stdin.buffer, f)
             else :
-                for line in sys.stdin :
-                    f.write (line)
+                for line in sys.stdin.buffer :
+                    f.write (line.decode ('utf-8'))
             f.close ()
             self.wb = self.browser.open \
                 (self.filename, new = 2, autoraise = self.do_raise)
@@ -146,9 +146,10 @@ class Browse (Exec) :
            )
          ]
 
-    def markup (self, input, output) :
+    def markup (self, input, output, encoding = 'utf-8') :
         output.write ('<html>\n')
         for line in input :
+            line = line.decode (encoding)
             line = escape (line)
             for n, (regex, replacement, multiple) in enumerate (self.RR) :
                 #print n
