@@ -49,12 +49,15 @@ class Browse (Exec) :
                 suffix = '.html'
             fd, self.filename = mkstemp (suffix)
             self.filename = os.path.abspath (self.filename)
-            f = os.fdopen (fd, 'w')
+            mode = 'w'
+            if not self.do_markup :
+                mode = 'wb'
+            f = os.fdopen (fd, mode)
             if self.do_markup :
                 self.markup (sys.stdin.buffer, f)
             else :
                 for line in sys.stdin.buffer :
-                    f.write (line.decode ('utf-8'))
+                    f.write (line)
             f.close ()
             self.wb = self.browser.open \
                 (self.filename, new = 2, autoraise = self.do_raise)
