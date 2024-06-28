@@ -10,6 +10,7 @@
 *.pyc
 *.pyo
 *.rej
+*.egg-info
 *~
 .#*
 .*.swp
@@ -17,3 +18,5 @@
 Version.py
 VERSION
 build
+README.html
+dist

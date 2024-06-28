@@ -45,4 +45,4 @@ dependencies    = ['rsclib']
 pybrowse = 'pybrowse.pybrowse:main'
 
 [tool.setuptools.dynamic]
-version = {attr = "pybrowse.__version__"}
+version = {file = "VERSION"}
