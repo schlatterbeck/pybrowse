@@ -15,4 +15,5 @@
 .*.swp
 .DS_store
 Version.py
+VERSION
 build

@@ -5,13 +5,13 @@ import sys
 import re
 import webbrowser
 
-from cgi              import escape
+from html             import escape
 from optparse         import OptionParser
 from tempfile         import mkstemp
 from rsclib.execute   import Exec
 from pybrowse.Version import VERSION
 
-class Browse (Exec) :
+class Browse (Exec):
     """ Feed a file to running web browser -- modelled after the
         "webbrowse" program in Perl
         You probably want to prevent firefox from changing to the
@@ -30,7 +30,7 @@ class Browse (Exec) :
         , keep      = 10
         , use_at    = True
         , do_raise  = True
-        ) :
+        ):
         self.browser   = webbrowser.get (browser)
         self.is_html   = is_html
         self.do_markup = do_markup
@@ -39,38 +39,37 @@ class Browse (Exec) :
         self.use_at    = use_at
         self.do_raise  = do_raise
         self.filename  = None
-        if url :
+        if url:
             # new = 2 is "open new tab"
             self.wb = self.browser.open \
                 (self.url, new = 2, autoraise = self.do_raise)
-        else :
+        else:
             suffix = '.txt'
-            if self.is_html or self.do_markup :
+            if self.is_html or self.do_markup:
                 suffix = '.html'
             fd, self.filename = mkstemp (suffix)
             self.filename = os.path.abspath (self.filename)
             mode = 'w'
-            if not self.do_markup :
+            if not self.do_markup:
                 mode = 'wb'
-            f = os.fdopen (fd, mode)
-            if self.do_markup :
-                self.markup (sys.stdin.buffer, f)
-            else :
-                for line in sys.stdin.buffer :
-                    f.write (line)
-            f.close ()
+            with os.fdopen (fd, mode) as f:
+                if self.do_markup:
+                    self.markup (sys.stdin.buffer, f)
+                else:
+                    for line in sys.stdin.buffer:
+                        f.write (line)
             self.wb = self.browser.open \
                 (self.filename, new = 2, autoraise = self.do_raise)
             self.schedule_rm ()
     # end def __init__
 
-    def schedule_rm (self) :
+    def schedule_rm (self):
         """ Schedule removal of temporary file in self.keep minutes.
             We asume a mkstemp filename doesn't need shell-quoting.
         """
-        if self.keep == 0 or not self.filename :
+        if self.keep == 0 or not self.filename:
             return
-        if self.use_at :
+        if self.use_at:
             self.exec_pipe \
                 ( ( b'at'
                   , b'now'
@@ -80,7 +79,7 @@ class Browse (Exec) :
                   )
                 , b"/bin/rm -f %s\n" % self.filename.encode ('utf-8')
                 )
-        else :
+        else:
             os.system \
                 ( "(sleep %s ; /bin/rm -f %s)&"
                 % (self.keep * 60, self.filename)
@@ -149,18 +148,18 @@ class Browse (Exec) :
            )
          ]
 
-    def markup (self, input, output, encoding = 'utf-8') :
+    def markup (self, input, output, encoding = 'utf-8'):
         output.write ('<html>\n')
-        for line in input :
+        for line in input:
             line = line.decode (encoding)
             line = escape (line)
-            for n, (regex, replacement, multiple) in enumerate (self.RR) :
+            for n, (regex, replacement, multiple) in enumerate (self.RR):
                 #print n
-                if multiple :
+                if multiple:
                     k = 0
-                    while k :
+                    while k:
                         line, k = regex.subn (replacement, line)
-                else :
+                else:
                     line = regex.sub (replacement, line)
             line = line.replace ('\n', '<br>\n')
             output.write (line)
@@ -169,7 +168,7 @@ class Browse (Exec) :
 
 # end class Browse
 
-def main () :
+def main ():
     parser = OptionParser (version = "%%prog %s" % VERSION)
     parser.add_option \
         ( "-b", "--browser"
@@ -224,10 +223,10 @@ def main () :
         , default = True
         )
     (opt, args) = parser.parse_args ()
-    if len (args) :
+    if len (args):
         parser.error ("No arguments please")
     b = Browse (** opt.__dict__)
 # end def main
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     main ()

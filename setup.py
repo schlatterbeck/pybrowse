@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: iso-8859-1 -*-
-# Copyright (C) 2010 Dr. Ralf Schlatterbeck Open Source Consulting.
+# Copyright (C) 2010-24 Dr. Ralf Schlatterbeck Open Source Consulting.
 # Reichergasse 131, A-3411 Weidling.
 # Web: http://www.runtux.com Email: office@runtux.com
 # All rights reserved
@@ -21,33 +20,33 @@
 # 02110-1301 USA
 # ****************************************************************************
 
-from distutils.core import setup
-try :
-    from Version        import VERSION
-except :
-    VERSION = None
+import os.path
+from setuptools import setup
 
-description = []
-f = open ('README')
-logo_stripped = False
-for line in f :
-    if not logo_stripped and line.strip () :
-        continue
-    logo_stripped = True
-    description.append (line)
+if os.path.exists ("VERSION"):
+    with open ("VERSION", 'r', encoding="utf8") as f:
+        __version__ = f.read ().strip ()
+else:
+    __version__ = '0+unknown'
 
-license = 'GNU General Public License (GPL)'
+with open ('README.rst', encoding = 'utf-8') as f:
+    description = f.read ()
+
+license = 'MIT License'
 
 setup \
     ( name             = "pybrowse"
-    , version          = VERSION
+    , version          = __version__
     , description      = "webrowse replacement: send html or text to browser"
     , long_description = ''.join (description)
     , license          = license
     , author           = "Ralf Schlatterbeck"
     , author_email     = "rsc@runtux.com"
+    , install_requires = ['rsclib']
     , packages         = ['pybrowse']
     , package_dir      = { 'pybrowse' : '' }
     , platforms        = 'Any'
-    , scripts          = ['pybrowse']
+    , entry_points     = dict
+        ( console_scripts = ['pybrowse=pybrowse.pybrowse:main']
+        )
     )
