@@ -71,13 +71,8 @@ class Browse (Exec):
             return
         if self.use_at:
             self.exec_pipe \
-                ( ( b'at'
-                  , b'now'
-                  , b'+'
-                  , str (self.keep).encode ('ascii')
-                  , b'minutes'
-                  )
-                , b"/bin/rm -f %s\n" % self.filename.encode ('utf-8')
+                ( ('at', 'now', '+', str (self.keep), 'minutes')
+                , "/bin/rm -f %s\n" % self.filename
                 )
         else:
             os.system \
