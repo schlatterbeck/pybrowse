@@ -33,7 +33,7 @@ dynamic         = ["version"]
 authors         = [{ name="Ralf Schlatterbeck", email="rsc@runtux.com" }, ]
 description     = "webrowse replacement: send html or text to browser"
 readme          = "README.rst"
-license         = {text = "MIT License"}
+license         = "MIT"
 requires-python = '>=3.7'
 dependencies    = ['rsclib']
 
